@@ -9,7 +9,7 @@ case "`uname`" in
 		bin_abs_path=`cd $(dirname $0); pwd`
 		;;
 esac
-base=${bin_abs_path}/..
+base=${bin_abs_path}/../canal_outputs
 canal_conf=$base/conf/canal.properties
 logback_configurationFile=$base/conf/logback.xml
 export LANG=en_US.UTF-8
