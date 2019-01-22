@@ -140,6 +140,9 @@ public class MemoryEventStoreWithBuffer extends AbstractCanalStoreScavenge imple
                 }
 
                 try {
+                    //如果还没有超时，调用notFull.awaitNanos进行等待，需要其他线程调用notFull.signal()方法唤醒。
+                    //唤醒是在ack操作中进行的，ack操作会删除已经消费成功的event，此时队列有了空间，因此可以唤醒，详见ack方法分析
+                    //当被唤醒后，因为这是一个死循环，所以循环中的代码会重复执行。当插入条件满足时，调用doPut方法插入，然后返回
                     nanos = notFull.awaitNanos(nanos);
                 } catch (InterruptedException ie) {
                     notFull.signal(); // propagate to non-interrupted thread

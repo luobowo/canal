@@ -151,15 +151,19 @@ public class CanalServerWithEmbedded extends AbstractCanalLifeCycle implements C
     public void subscribe(ClientIdentity clientIdentity) throws CanalServerException {
         checkStart(clientIdentity.getDestination());
 
+        // 1、根据客户端要订阅的destination，找到对应的CanalInstance
         CanalInstance canalInstance = canalInstances.get(clientIdentity.getDestination());
         if (!canalInstance.getMetaManager().isStart()) {
             canalInstance.getMetaManager().start();
         }
 
+        // 2、通过CanalInstance的CanalMetaManager组件进行元数据管理，记录一下当前这个CanalInstance有客户端在订阅
         canalInstance.getMetaManager().subscribe(clientIdentity); // 执行一下meta订阅
 
+        // 3、获取客户端当前订阅的binlog位置(Position)，首先尝试从CanalMetaManager中获取
         Position position = canalInstance.getMetaManager().getCursor(clientIdentity);
         if (position == null) {
+            // 3.1 如果是第一次订阅，尝试从CanalEventStore中获取第一个binlog的位置，作为客户端订阅开始的位置。
             position = canalInstance.getEventStore().getFirstPosition();// 获取一下store中的第一条
             if (position != null) {
                 canalInstance.getMetaManager().updateCursor(clientIdentity, position); // 更新一下cursor

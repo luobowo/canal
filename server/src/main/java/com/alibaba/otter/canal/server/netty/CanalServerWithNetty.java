@@ -56,6 +56,7 @@ public class CanalServerWithNetty extends AbstractCanalLifeCycle implements Cana
     public void start() {
         super.start();
 
+        // 优先启动内嵌的canal server，因为基于netty的实现需要将请求委派给其处理
         if (!embeddedServer.isStart()) {
             embeddedServer.start();
         }
